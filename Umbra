@@ -1,0 +1,34 @@
+(function() {
+    // Mapping of old numbers to new numbers
+    const numberMap = {
+        "1983": "2007",
+        "1557": "2463",
+        "3478": "1935",
+        "1381": "2981"
+    };
+
+    function replaceSpecificNumbers(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            for (const [oldNum, newNum] of Object.entries(numberMap)) {
+                node.textContent = node.textContent.replace(new RegExp(`\\b${oldNum}\\b`, 'g'), newNum);
+            }
+        } else {
+            node.childNodes.forEach(replaceSpecificNumbers);
+        }
+    }
+
+    // Initial replacement
+    replaceSpecificNumbers(document.body);
+
+    // Optional: Observe DOM changes for dynamically added content
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => replaceSpecificNumbers(node));
+        });
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+})();
